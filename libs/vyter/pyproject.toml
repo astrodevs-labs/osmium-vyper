@@ -1,0 +1,8 @@
+[project]
+name = "vyter"
+authors = ["Astrodevs-Labs"]
+version = "0.1.0"
+dependencies = []
+
+[project.scripts]
+spam-cli = "spam:main_cli"
