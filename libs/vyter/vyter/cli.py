@@ -1,12 +1,4 @@
-from engine.rule_factory import RuleFactory
-from rules.test_rule import TestRuleData
-
-
-def create_factory() -> RuleFactory:
-    rules = [
-        TestRuleData('test_rule')
-    ]
-    return RuleFactory(rules, None)
+from vyter.lib import create_factory
 
 
 if __name__ == '__main__':

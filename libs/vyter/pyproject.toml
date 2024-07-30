@@ -1,8 +1,11 @@
 [project]
 name = "vyter"
-authors = ["Astrodevs-Labs"]
+authors = [{ name = "Astrodevs-Labs", email = "astrodevs-labs@protonmail.com" }]
 version = "0.1.0"
-dependencies = []
+
+[dependencies]
+pydantic = { version = "2.8.2"}
+
 
 [project.scripts]
-spam-cli = "spam:main_cli"
+vyter = "vyter:cli"

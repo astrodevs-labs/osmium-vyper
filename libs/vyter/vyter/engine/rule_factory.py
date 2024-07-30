@@ -1,30 +1,35 @@
+from dataclasses import dataclass
 import json
 from typing import List
-from types.rule import Rule
-from types.rule_data import RuleData
+from pydantic import BaseModel
+from vyter.types.rule import Rule, RuleConfig
+
+@dataclass
+class ConfigFile(BaseModel):
+    rules: List[RuleConfig]
 
 class RuleFactory:
-    def __init__(self, rules_data: List[RuleData], config_file = None):
-        self.rules_data = rules_data
-        self.rules: List[Rule] = []
+    def __init__(self, default_rules: List[Rule], config_file: str | None = None):
+        self.default_rules: List[Rule] = default_rules
         self.config_file = config_file
-    
-    def register_rule(self, rule: RuleData):
-        self.rules_data[rule.id] = rule
+        self.rules = []
 
-    def create_default_file(self, at):
+    def create_default_file(self, at = '.'):
         self.config_file = at + '/vyter_rules.json'
         with open(self.config_file, 'w') as f:
-            f.write('rules:\n\t\t[')
-            for rule in self.rules_data:
-                f.write(json.dumps(rule.get_json()))
-            f.write('\n\t\t]')
+            config: ConfigFile = ConfigFile(rules = list(map(lambda r: r.get_default_config(), self.default_rules)))
+            data = config.json()
+            json.dump(data, f, indent=4)
 
-    def load_rules(self) -> Rule:
+    def load_rules(self):
         if not self.config_file:
             self.create_default_file()
         with open(self.config_file) as f:
-            data = json.load(f)
-            for rule in data:
-                if self.rules_data[rule.id]:
-                    self.rules.append(self.rules_data[rule.id].create_rule(rule['id'], rule['severity'], rule['data']))
+            config: ConfigFile = ConfigFile.parse_raw(f.read())
+            print(config)
+            for rule_config in config.rules:
+                rule: Rule = self.default_rules.filter(lambda r: r.id == rule_config.id).next()
+                if rule is None:
+                    continue
+                rule.activate_rule(rule_config)
+                self.rules.append(rule)

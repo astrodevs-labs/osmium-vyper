@@ -5,4 +5,4 @@ class Diagnostic:
         self.column = column
 
     def __str__(self):
-        return f"{self.line}:{self.column} {self.message}"
+        return f"[{self.line}:{self.column}] {self.message}"

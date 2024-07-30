@@ -1,0 +1,2 @@
+def rihrofoih():
+    return "issou"
