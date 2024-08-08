@@ -9,19 +9,20 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [
+    "languages": [
       {
-        "command": "osmium-vyper.helloWorld",
-        "title": "Hello World"
+        "id": "python",
+        "aliases": ["Python", "python"],
+        "extensions": [".py"],
+        "configuration": "./language-configuration.json"
       }
     ],
     "configuration": {
       "title": "Osmium-vyper",
       "properties": {
-        "Osmium.slither": {
+        "Osmium.vyper.slither": {
           "type": "boolean",
           "default": true,
           "description": "Slither is going to report you some security issues that are in your functions and contracts."

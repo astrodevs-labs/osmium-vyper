@@ -9,27 +9,26 @@ fs.readdir('servers', { withFileTypes: true }, (err, dirs) => {
   }
   const servers = dirs.filter((file) => file.isDirectory()).map((file) => file.name);
   servers.forEach((serverDir) => {
-    fs.readdir(`servers/${serverDir}/target`, { withFileTypes: true }, (err, entries) => {
-      const directories = entries.filter((directory) => directory.isDirectory()).map((directory) => directory.name);
-      const targetDirectories = directories.filter((directory) => directory == 'release' || directory == 'debug');
-      const typeDir = targetDirectories.find((dir) => dir == 'release') || targetDirectories[0];
-      // list server binaries in target directory
-      fs.readdir(`servers/${serverDir}/target/${typeDir}`, { withFileTypes: true }, (err, entries) => {
+    fs.readdir(`servers/${serverDir}/src`, { withFileTypes: true }, (err, entries) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      const files = entries.filter((file) => file.isFile()).map((file) => file.name);
+      console.log('Copying server binary to vscode/dist', files);
+      fs.mkdir(`${outputFolder}/${serverDir}/`, { recursive: true }, (err) => {
         if (err) {
-          console.error(err);
-          return;
+          return console.error(err);
         }
-        const files = entries.filter((file) => file.isFile()).map((file) => file.name);
-        const serverBinary = files.filter((file) => file.endsWith('-server') || file.endsWith('-server.exe'));
-        console.log('Copying server binary to vscode/dist', serverBinary);
+
         fs.copyFile(
-          `servers/${serverDir}/target/${typeDir}/${serverBinary}`,
-          `${outputFolder}/${serverBinary}`,
+          `servers/${serverDir}/src/${files}`,
+          `${outputFolder}/${serverDir}/${files}`,
           (err) => {
             if (err) {
               console.error(err);
             }
-          },
+          }
         );
       });
     });

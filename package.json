@@ -11,7 +11,7 @@
     "turbo": "^1.13.3"
   },
   "scripts": {
-    "build": "turbo build && node ./scripts/copy-servers.js && node ./scripts/copy-front.js",
+    "build": "turbo build && node ./scripts/copy-servers.js ",
     "build:extension": "turbo build:extension && node ./scripts/copy-servers.js && node ./scripts/copy-front.js",
     "publish": "turbo publish",
     "publish:check": "turbo publish:check",
