@@ -2,9 +2,8 @@ from dataclasses import dataclass
 import json
 from typing import List
 from pydantic import BaseModel
-from vyter.types.rule import Rule, RuleConfig
+from ..types.rule import Rule, RuleConfig
 
-@dataclass
 class ConfigFile(BaseModel):
     rules: List[RuleConfig]
 
@@ -18,14 +17,15 @@ class RuleFactory:
         self.config_file = at + '/vyter_rules.json'
         with open(self.config_file, 'w') as f:
             config: ConfigFile = ConfigFile(rules = list(map(lambda r: r.get_default_config(), self.default_rules)))
-            data = config.json()
+            data = config.model_dump_json()
             json.dump(data, f, indent=4)
 
     def load_rules(self):
         if not self.config_file:
             self.create_default_file()
         with open(self.config_file) as f:
-            config: ConfigFile = ConfigFile.parse_raw(f.read())
+            data = json.load(f)
+            config: ConfigFile = ConfigFile.model_validate_json(data)
             print(config)
             for rule_config in config.rules:
                 rule: Rule = self.default_rules.filter(lambda r: r.id == rule_config.id).next()

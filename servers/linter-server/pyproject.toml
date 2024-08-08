@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "linter"
+name = "linter-server"
 version = "0.1.0"
 description = ""
 authors = ["0xSwapFeeder <tristan.gremont@epitech.eu>"]
@@ -7,9 +7,12 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-pydantic = "^2.8.2"
+vyter = { path = "../../libs/vyter"}
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+linter = 'linter_server.server:run'

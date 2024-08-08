@@ -1,7 +1,7 @@
-from vyter.lib import create_factory
+from .import lib
 
 
-if __name__ == '__main__':
-    factory = create_factory()
+def run():
+    factory = lib.create_factory()
     factory.load_rules()
     print(factory.rules)

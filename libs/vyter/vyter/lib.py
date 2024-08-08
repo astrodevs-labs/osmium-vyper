@@ -1,5 +1,5 @@
-from vyter.engine.rule_factory import RuleFactory
-from vyter.rules.test_rule import TestRule
+from .engine.rule_factory import RuleFactory
+from .rules.test_rule import TestRule
 
 
 def create_factory(file_path: str | None = None) -> RuleFactory:

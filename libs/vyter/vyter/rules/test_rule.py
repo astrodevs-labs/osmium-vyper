@@ -1,14 +1,14 @@
 from typing import List
-from vyter.types.diagnostic import Diagnostic
-from vyter.types.rule import Rule, Severity, rule
+from ..types import diagnostic
+from ..types import rule
 
 
-@rule(
-    severity = Severity.ERROR,
+@rule.rule(
+    severity = rule.Severity.ERROR,
     description = "This is a test rule",
     data = "test"
 )
-class TestRule(Rule):
-    def diagnose(self, file, files) -> List[Diagnostic]:
+class TestRule(rule.Rule):
+    def diagnose(self, file, files) -> List[diagnostic.Diagnostic]:
         return super.diagnose(file, files)
 

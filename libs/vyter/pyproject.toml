@@ -1,11 +1,18 @@
-[project]
+[tool.poetry]
 name = "vyter"
-authors = [{ name = "Astrodevs-Labs", email = "astrodevs-labs@protonmail.com" }]
 version = "0.1.0"
+description = ""
+authors = ["0xSwapFeeder <tristan.gremont@epitech.eu>"]
+readme = "README.md"
 
-[dependencies]
-pydantic = { version = "2.8.2"}
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.8.2"
 
 
-[project.scripts]
-vyter = "vyter:cli"
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+cli = 'vyter.cli:run'

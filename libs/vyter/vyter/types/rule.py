@@ -5,7 +5,7 @@ import re
 from typing import List, Union
 from pydantic import BaseModel
 
-from vyter.types.diagnostic import Diagnostic
+from . import diagnostic
 
 # Description: This file contains the rule decorator which is used to define a rule for the vyter engine.
 
@@ -19,14 +19,13 @@ class Severity(Enum):
         return str(self.value)
 
 
-@dataclass
+
 class RuleDocumentation(BaseModel):
     id: str
     default_severity: Severity
     info: str
     exemple: str
 
-@dataclass
 class RuleConfig(BaseModel):
     id: str
     severity: Severity
@@ -78,5 +77,5 @@ class Rule(ABC):
         self.is_active = True
 
     @abstractmethod
-    def diagnose(self, file, files) -> List[Diagnostic]:
+    def diagnose(self, file, files) -> List[diagnostic.Diagnostic]:
         pass
