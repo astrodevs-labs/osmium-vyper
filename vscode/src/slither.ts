@@ -6,7 +6,7 @@ import { ExtensionContext, Uri, window, workspace } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient/node';
 
 export async function createSlitherClient(context: ExtensionContext): Promise<LanguageClient> {
-  const venvPath = context.asAbsolutePath(path.join('..', 'osmium-vyper-env'));
+  const venvPath = path.join(context.extensionPath, '..', 'osmium-vyper-env');
   const pythonPath = path.join(venvPath, 'bin', 'python');
 
   if (!fs.existsSync(pythonPath)) {
