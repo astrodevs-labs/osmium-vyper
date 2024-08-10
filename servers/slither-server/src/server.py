@@ -1,5 +1,6 @@
 """lsp server"""
 
+import urllib.parse
 from pygls import server
 import lsprotocol.types as lsp
 
@@ -18,5 +19,19 @@ def completions(params: lsp.CompletionParams):
             lsp.CompletionItem(label="friend"),
         ]
     return lsp.CompletionList(is_incomplete=False, items=items)
+
+@server.feature(lsp.TEXT_DOCUMENT_DID_SAVE)
+def did_save(params: lsp.DidSaveTextDocumentParams):
+    """did save test"""
+
+    file_path = urllib.parse.urlparse(params.text_document.uri).path
+
+    with open(file_path, "r", encoding="utf-8") as file_saved:
+        content = file_saved.read()
+        file_saved.close()
+
+    with open("test.txt", "w", encoding="utf-8") as f:
+        f.write(content)
+        f.close()
 
 server.start_io()
