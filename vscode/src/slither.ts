@@ -36,7 +36,7 @@ export async function createSlitherClient(context: ExtensionContext): Promise<La
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
     // Register the server for plain text documents
-    documentSelector: [{ scheme: 'file', language: 'python' }],
+    documentSelector: [{ scheme: 'file', language: 'vyper', pattern: '**/*.vy' }],
     synchronize: {
       // Notify the server about file changes to '.clientrc files contained in the workspace
       fileEvents: workspace.createFileSystemWatcher('**/.solidhunter.json'),

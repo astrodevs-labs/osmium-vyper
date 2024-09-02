@@ -13,9 +13,9 @@
   "contributes": {
     "languages": [
       {
-        "id": "python",
-        "aliases": ["Python", "python"],
-        "extensions": [".py"],
+        "id": "vyper",
+        "aliases": ["Vyper", "vyper"],
+        "extensions": [".vy"],
         "configuration": "./language-configuration.json"
       }
     ],
