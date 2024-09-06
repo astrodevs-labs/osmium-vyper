@@ -3,6 +3,7 @@ import os
 import subprocess
 from pygls import server
 import lsprotocol.types as lsp
+import json
 
 server = server.LanguageServer("example-server", "v0.1")
 
@@ -28,24 +29,22 @@ def did_save(params: lsp.DidSaveTextDocumentParams):
     workspace = os.path.dirname(file_path)
 
     # Use slither to analyze the vulnerabilities
-    vulnerabilities = parse_slither_out(file_path, workspace)
-    if not vulnerabilities:
-        print("No Vulnerabilities found")
+    filtered_data = parse_slither_out(file_path, workspace)
+    if not filtered_data:
         with open("test.txt", "w", encoding="utf-8") as f:
             f.write("No Vulnerabilities found")
             f.close()
     else:
-        print("Vulnerabilities found:")
         with open("test.txt", "w", encoding="utf-8") as f:
-            f.write("Vulnerabilities found")
+            for data in filtered_data:
+                f.write(json.dumps(data))
+                f.write("\n")
             f.close()
-        for vulnerability in vulnerabilities:
-            print(vulnerability)
 
 def exec_slither(uri, workspace):
     try:
         process = subprocess.Popen(
-            ["slither", uri, "--json", "result.json"],
+            ["slither", uri, "--exclude", "naming-convention", "--json", "-"],
             cwd=workspace,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -57,37 +56,48 @@ def exec_slither(uri, workspace):
         return None
 
 def parse_slither_out(uri, workspace):
-    results = []
-
+    output_dict = {"stdout": "", "stderr": ""}
+    
     process = exec_slither(uri, workspace)
     if not process:
-        return results
+        return output_dict
 
     stdout, stderr = process.communicate()
+    output_dict["stdout"] = stdout
+    output_dict["stderr"] = stderr  
 
-    if process.returncode != 0:
-        handle_slither_error(uri, workspace, stderr)
-        return stderr
+    if not stdout.strip():
+        return []
 
-    # Parse the terminal output directly
-    vulnerabilities = parse_terminal_output(stdout)
-    results.extend(vulnerabilities)
+    filtered_data = parse_json_output(stdout)
+    return filtered_data
 
-    return results
+def parse_json_output(output):
+    vulnerabilities = []
 
-def parse_terminal_output(output):
-    results = []
-    lines = output.splitlines()
-    for line in lines:
-        if "sends eth to arbitrary user" in line or \
-           "incorrect ERC20 function interface" in line or \
-           "ignores return value" in line or \
-           "lacks a zero-check on" in line or \
-           "Low level call" in line:
-            results.append(line)
-    return results
+    try:
+        vulnerabilities_json = json.loads(output)
+        detectors = vulnerabilities_json.get("results", {}).get("detectors", [])
+        
+        for detector in detectors:
+            if isinstance(detector, dict):
+                impact = detector.get("impact", "Unknown")
+                description = detector.get("description", "Unknown")
+                for element in detector.get("elements", []):
+                    if element.get("type") == "node":
+                        filtered_element = {
+                            "message": description,
+                            "start": element.get("source_mapping", {}).get("start"),
+                            "length": element.get("source_mapping", {}).get("length"),
+                            "severity": impact
+                        }
+                        vulnerabilities.append(filtered_element)
+            else:
+                print(f"Unexpected detector type: {type(detector)}")
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON: {e}")
 
-def handle_slither_error(uri, workspace, err_output):
-    print(f"Vulnerabilities found: {err_output}")
+    return vulnerabilities
+
 
 server.start_io()
