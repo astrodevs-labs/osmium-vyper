@@ -1,11 +1,10 @@
 import subprocess
 import json
-import re
 
 def exec_slither(uri, workspace):
     try:
         process = subprocess.Popen(
-            ["slither", uri, "--json", "result.json"],
+            ["slither", uri, "--exclude", "naming-convention", "--json", "-"],
             cwd=workspace,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -17,47 +16,63 @@ def exec_slither(uri, workspace):
         return None
 
 def parse_slither_out(uri, workspace):
-    results = []
-
+    output_dict = {"stdout": "", "stderr": ""}
+    
     process = exec_slither(uri, workspace)
     if not process:
-        return results
+        return output_dict
 
     stdout, stderr = process.communicate()
+    output_dict["stdout"] = stdout
+    output_dict["stderr"] = stderr  
 
+    if not stdout.strip():
+        return []
 
-    if process.returncode != 0:
-        handle_slither_error(uri, workspace, stderr)
-        return stderr
+    filtered_data = parse_json_output(stdout)
+    return filtered_data
 
-    # Parse the terminal output directly
-    vulnerabilities = parse_terminal_output(stdout)
-    results.extend(vulnerabilities)
+def parse_json_output(output):
+    vulnerabilities = []
 
-    return results
+    try:
+        vulnerabilities_json = json.loads(output)
+        detectors = vulnerabilities_json.get("results", {}).get("detectors", [])
+        
+        for detector in detectors:
+            if isinstance(detector, dict):
+                impact = detector.get("impact", "Unknown")
+                description = detector.get("description", "Unknown")
+                for element in detector.get("elements", []):
+                    if element.get("type") == "node":
+                        filtered_element = {
+                            "message": description,
+                            "start": element.get("source_mapping", {}).get("start"),
+                            "length": element.get("source_mapping", {}).get("length"),
+                            "severity": impact
+                        }
+                        vulnerabilities.append(filtered_element)
+            else:
+                print(f"Unexpected detector type: {type(detector)}")
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON: {e}")
 
-def parse_terminal_output(output):
-    results = []
-    lines = output.splitlines()
-    for line in lines:
-        if "sends eth to arbitrary user" in line or \
-           "incorrect ERC20 function interface" in line or \
-           "ignores return value" in line or \
-           "lacks a zero-check on" in line or \
-           "Low level call" in line:
-            results.append(line)
-    return results
-
-def handle_slither_error(uri, workspace, err_output):
-    print(f"Vulnerabilities found: {err_output}")
+    return vulnerabilities
 
 def main():
-    # uri = "contract.vy"  # without vulnerabilities
-    uri = "vulnerable_contract.vy" # with vulnerabilities
+    # uri = "Contract.vy"  # without vulnerabilities
+    uri = "vulnerable_contract.vy"  # with vulnerabilities
     workspace = "/home/enzobonato/EIP/osmium-vyper/vscode/src/slither_test"
-    vulnerabilities = parse_slither_out(uri, workspace)
-    if not vulnerabilities:
-        print("No Vulnerabilities found")
+    
+    filtered_data = parse_slither_out(uri, workspace)
+    
+    # DEBUG TO CHECK IF THERE ARE VULNERABILITIES
+    if not filtered_data:
+        print("No vulnerabilities found")
+    else:
+        print("Vulnerabilities found")
+    print(json.dumps(filtered_data, indent=2))
+    # END OF DEBUG
 
 if __name__ == "__main__":
     main()

@@ -23,6 +23,16 @@ export async function createSlitherClient(context: ExtensionContext): Promise<La
     window.showInformationMessage("L'interpréteur Python trouvé");
   }
 
+  try {
+    execSync(
+      `source ${path.join(venvPath, 'bin', 'activate')} && pip install pygls`,
+      { stdio: 'inherit', shell: '/bin/bash' }
+    );
+  } catch (error: any) {
+    window.showErrorMessage(`Erreur lors de l'installation des packages : ${error.message}`);
+    throw new Error(`Erreur lors de l'installation des packages : ${error.message}`);
+  }
+
   // The server is implemented in node
   const serverScript = context.asAbsolutePath(path.join('dist', 'slither-server', 'server.py'));
 
