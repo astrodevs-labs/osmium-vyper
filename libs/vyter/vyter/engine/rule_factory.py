@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 import json
+from os import write
 from typing import List
 from pydantic import BaseModel
 from ..types.rule import Rule, RuleConfig
@@ -17,18 +17,16 @@ class RuleFactory:
         self.config_file = at + '/vyter_rules.json'
         with open(self.config_file, 'w') as f:
             config: ConfigFile = ConfigFile(rules = list(map(lambda r: r.get_default_config(), self.default_rules)))
-            data = config.model_dump_json()
-            json.dump(data, f, indent=4)
+            data = config.model_dump_json(indent=4)
+            f.write(data)
 
     def load_rules(self):
         if not self.config_file:
             self.create_default_file()
         with open(self.config_file) as f:
-            data = json.load(f)
-            config: ConfigFile = ConfigFile.model_validate_json(data)
-            print(config)
+            config: ConfigFile = ConfigFile.model_validate_json(f.read())
             for rule_config in config.rules:
-                rule: Rule = self.default_rules.filter(lambda r: r.id == rule_config.id).next()
+                rule: Rule = list(filter(lambda r: r.id == rule_config.id, self.default_rules))[0]
                 if rule is None:
                     continue
                 rule.activate_rule(rule_config)

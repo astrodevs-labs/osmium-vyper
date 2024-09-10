@@ -1,1 +1,14 @@
-"{\"rules\":[{\"id\":\"test-rule\",\"severity\":\"error\",\"data\":\"test\"}]}"
+{
+    "rules": [
+        {
+            "id": "test-rule",
+            "severity": "error",
+            "data": "test"
+        },
+        {
+            "id": "b-rule",
+            "severity": "error",
+            "data": "test"
+        }
+    ]
+}

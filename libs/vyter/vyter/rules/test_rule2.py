@@ -5,11 +5,11 @@ from ..types import rule
 
 @rule.rule(
     severity = rule.Severity.ERROR,
-    description = "This is a test rule",
+    description = "This is a B rule",
     data = "test"
 )
-class TestRule(rule.Rule):
+class BRule(rule.Rule):
     def diagnose(self, file, files) -> List[diagnostic.Diagnostic]:
-        print("TestRule")
+        print("BRule")
         return []
 
