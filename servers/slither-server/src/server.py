@@ -1,3 +1,5 @@
+"server"
+
 import urllib.parse
 import os
 import subprocess
@@ -42,6 +44,7 @@ def did_save(params: lsp.DidSaveTextDocumentParams):
             f.close()
 
 def exec_slither(uri, workspace):
+    "exec_slither"
     try:
         process = subprocess.Popen(
             ["slither", uri, "--exclude", "naming-convention", "--json", "-"],
@@ -56,15 +59,15 @@ def exec_slither(uri, workspace):
         return None
 
 def parse_slither_out(uri, workspace):
+    """parse_slither_out"""
     output_dict = {"stdout": "", "stderr": ""}
-    
     process = exec_slither(uri, workspace)
     if not process:
         return output_dict
 
     stdout, stderr = process.communicate()
     output_dict["stdout"] = stdout
-    output_dict["stderr"] = stderr  
+    output_dict["stderr"] = stderr
 
     if not stdout.strip():
         return []
@@ -73,12 +76,12 @@ def parse_slither_out(uri, workspace):
     return filtered_data
 
 def parse_json_output(output):
+    "parse_json_output"
     vulnerabilities = []
 
     try:
         vulnerabilities_json = json.loads(output)
         detectors = vulnerabilities_json.get("results", {}).get("detectors", [])
-        
         for detector in detectors:
             if isinstance(detector, dict):
                 impact = detector.get("impact", "Unknown")
