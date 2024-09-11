@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "my-dog-lib"
+version = "0.1.0"
+description = ""
+authors = ["ByFish <maringertheo@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

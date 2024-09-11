@@ -1,0 +1,2 @@
+def dog():
+    print("bark")
