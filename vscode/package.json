@@ -3,6 +3,7 @@
   "displayName": "osmium-vyper",
   "description": "Osmium toolchain for vyper",
   "version": "0.0.1",
+  "publisher": "osmium",
   "engines": {
     "vscode": "^1.91.0"
   },
