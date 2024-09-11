@@ -7,6 +7,7 @@ import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } f
 
 export async function createSlitherClient(context: ExtensionContext): Promise<LanguageClient> {
   const venvPath = path.join(context.extensionPath, '..', 'osmium-vyper-env');
+  console.log('dossier du venv : ', venvPath);
   const pythonPath = path.join(venvPath, 'bin', 'python');
 
   if (!fs.existsSync(pythonPath)) {
@@ -14,46 +15,34 @@ export async function createSlitherClient(context: ExtensionContext): Promise<La
       `L'interpréteur Python n'a pas été trouvé à l'emplacement : ${pythonPath}. Installation en cours ...`,
     );
     try {
-      execSync(`python3 -m venv ${venvPath}`);
+      execSync(`python3.10 -m venv ${venvPath}`);
+      execSync(`source ${venvPath}/bin/activate > log.txt`, { stdio: 'inherit', shell: '/bin/bash' });
+      execSync(`${pythonPath} --version > log2.txt`, { stdio: 'inherit', shell: '/bin/bash' });
+      execSync(`${pythonPath} -m pip install pygls `, { stdio: 'inherit', shell: '/bin/bash' });
+      execSync(`${pythonPath} -m pip install vyper==0.3.7`, { stdio: 'inherit', shell: '/bin/bash' });
     } catch (error: any) {
       window.showErrorMessage(`Erreur lors de la création de l'environnement virtuel : ${error.message}`);
+      console.error('Erreur détaillée :', error);
       throw new Error(`Erreur lors de la création de l'environnement virtuel : ${error.message}`);
     }
   } else {
     window.showInformationMessage("L'interpréteur Python trouvé");
   }
 
-  try {
-    execSync(
-      `source ${path.join(venvPath, 'bin', 'activate')} && pip install pygls`,
-      { stdio: 'inherit', shell: '/bin/bash' }
-    );
-  } catch (error: any) {
-    window.showErrorMessage(`Erreur lors de l'installation des packages : ${error.message}`);
-    throw new Error(`Erreur lors de l'installation des packages : ${error.message}`);
-  }
-
-  // The server is implemented in node
   const serverScript = context.asAbsolutePath(path.join('dist', 'slither-server', 'server.py'));
 
-  // If the extension is launched in debug mode then the debug server options are used
-  // Otherwise the run options are used
   const serverOptions: ServerOptions = {
     run: { command: pythonPath, args: [serverScript], transport: TransportKind.stdio },
     debug: { command: pythonPath, args: [serverScript], transport: TransportKind.stdio },
   };
 
-  // Options to control the language client
   const clientOptions: LanguageClientOptions = {
-    // Register the server for plain text documents
     documentSelector: [{ scheme: 'file', language: 'vyper', pattern: '**/*.vy' }],
     synchronize: {
-      // Notify the server about file changes to '.clientrc files contained in the workspace
       fileEvents: workspace.createFileSystemWatcher('**/.solidhunter.json'),
     },
   };
 
-  // Create the language client and start the client.
   const client = new LanguageClient(
     'osmium-slither-vyper',
     'Osmium Slither Language Server for Vyper',
@@ -71,7 +60,6 @@ export async function createSlitherClient(context: ExtensionContext): Promise<La
     };
   });
 
-  // Start the client. This will also launch the server
   await client.start();
 
   return client;
