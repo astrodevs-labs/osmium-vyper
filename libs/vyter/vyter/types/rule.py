@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from enum import Enum
 import re
 from typing import List, Union
 from pydantic import BaseModel
+
+from .file import File
 
 from . import diagnostic
 
@@ -77,5 +78,5 @@ class Rule(ABC):
         self.is_active = True
 
     @abstractmethod
-    def diagnose(self, file, files) -> List[diagnostic.Diagnostic]:
+    def diagnose(self, file: File) -> List[diagnostic.Diagnostic]:
         pass
