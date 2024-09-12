@@ -2,12 +2,13 @@
 name = "servers"
 version = "0.1.0"
 description = ""
-authors = ["Enzo Bonato <enzo.bonato@epitech.eu>"]
+authors = ["0xtekgrinder <0xtekgrinder@protonmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-ast_extractor = { path = "../../libs/ast_extractor" }
+ast-extractor = {path = "../../libs/ast-extractor"}
+
 
 [build-system]
 requires = ["poetry-core"]

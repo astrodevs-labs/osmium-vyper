@@ -1,5 +1,5 @@
-import subprocess
 import json
+import subprocess
 
 def filepath_vyper_to_ast(file_path):
     try:
