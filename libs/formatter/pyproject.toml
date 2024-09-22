@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "formatter"
+version = "0.1.0"
+description = ""
+authors = ["0xtekgrinder <0xtekgrinder@protonmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+ast-extractor = {path = "../../libs/ast-extractor"}
+tomli = "^2.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+start = "formatter.main:start"
